@@ -20,7 +20,6 @@ const Home = () => {
   const MySwal = withReactContent(swal);
 
   const fetchNowPlay = async () => {
-    setIsLoading(true);
     await api
       .getTask()
       .then((response) => {
@@ -126,6 +125,7 @@ const Home = () => {
                 {datasTodo.map((data, idx) => {
                   return (
                     <LazyCard
+                      id={data.id}
                       key={`${idx}-todo`}
                       content={data.content}
                       status={data.labels}

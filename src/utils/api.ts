@@ -17,13 +17,28 @@ export default {
         }`,
       },
     }),
-  getFavo: (code: string) =>
+  getTaskIdx: (code?: string) =>
     instance({
       method: 'GET',
-      url: `account/${code}/favorite/movies?api_key=${
-        import.meta.env.VITE_TODO_API
-          ? import.meta.env.VITE_TODO_API
-          : process.env.VITE_TODO_API
-      }`,
+      url: `tasks/${code}`,
+      headers: {
+        Authorization: `Bearer ${
+          import.meta.env.VITE_TODO_API
+            ? import.meta.env.VITE_TODO_API
+            : process.env.VITE_TODO_API
+        }`,
+      },
+    }),
+  DelTaskIdx: (code?: string) =>
+    instance({
+      method: 'DELETE',
+      url: `tasks/${code}`,
+      headers: {
+        Authorization: `Bearer ${
+          import.meta.env.VITE_TODO_API
+            ? import.meta.env.VITE_TODO_API
+            : process.env.VITE_TODO_API
+        }`,
+      },
     }),
 };

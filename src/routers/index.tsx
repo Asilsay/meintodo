@@ -29,7 +29,7 @@ export const Router = () => {
             element={<Home />}
           />
           <Route
-            path="/detail/:movie_id"
+            path="/detail/:detail"
             element={<Detail />}
           />
           <Route
