@@ -1,16 +1,14 @@
-import withReactContent from 'sweetalert2-react-content';
-import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, lazy, Suspense } from 'react';
+import withReactContent from 'sweetalert2-react-content';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z, ZodType } from 'zod';
 
 import { Layout, Section } from '../components/Layout';
-
-import api from '../utils/api';
-import swal from '../utils/swal';
-import Toast from '../utils/toast';
 import { TodosType } from '../utils/todotypes';
-import { z, ZodType } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import Toast from '../utils/toast';
+import swal from '../utils/swal';
+import api from '../utils/api';
 
 const LazyCard = lazy(() => import('../components/Card'));
 
@@ -23,7 +21,6 @@ type formInput = {
 const Home = () => {
   const [datasTodo, setDatasTodo] = useState<TodosType[]>([]);
 
-  const navigate = useNavigate();
   const MySwal = withReactContent(swal);
   const MyToast = withReactContent(Toast);
 
@@ -54,8 +51,7 @@ const Home = () => {
   const postDatas = async (code: any) => {
     await api
       .PostTask(code)
-      .then((response) => {
-        const { data } = response;
+      .then(() => {
         MyToast.fire({
           icon: 'success',
           title: 'success submit todo',
@@ -87,14 +83,6 @@ const Home = () => {
           showCancelButton: false,
         });
       });
-  };
-
-  const handleNav = (movie_id?: number) => {
-    navigate(`/detail/${movie_id}`, {
-      state: {
-        movie_id: movie_id,
-      },
-    });
   };
 
   const handleClickScroll = (x: string) => {

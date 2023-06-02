@@ -1,17 +1,15 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import withReactContent from 'sweetalert2-react-content';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { z, ZodType } from 'zod';
 
 import { Layout, Section } from '../components/Layout';
+import { TodosType } from '../utils/todotypes';
+import toast from '../utils/toast';
 import Swal from '../utils/swal';
 import api from '../utils/api';
-import { TodosType } from '../utils/todotypes';
-import { Input, TextArea } from '../components/Input';
-import toast from '../utils/toast';
-
-import { z, ZodType } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 type formInput = {
   content: string;
@@ -20,7 +18,6 @@ type formInput = {
 };
 
 export const Detail = () => {
-  const [objSubmit, setObjSubmit] = useState<Partial<TodosType>>({});
   const [load, setLoad] = useState<boolean>(false);
   const [data, setData] = useState<TodosType>({
     content: '',
@@ -49,7 +46,6 @@ export const Detail = () => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    reset,
   } = useForm<formInput>({
     resolver: zodResolver(schema),
   });
@@ -87,7 +83,7 @@ export const Detail = () => {
       if (result.isConfirmed) {
         api
           .DelTaskIdx(detail_id)
-          .then((response) => {
+          .then(() => {
             navigate('/');
             MyToast.fire({
               icon: 'success',
@@ -120,7 +116,7 @@ export const Detail = () => {
             detail_id,
             isCompleted === 'notcompleted' ? 'completed' : 'notcompleted'
           )
-          .then((response) => {
+          .then(() => {
             fetchData();
             MyToast.fire({
               icon: 'success',
@@ -149,7 +145,7 @@ export const Detail = () => {
       if (result.isConfirmed) {
         api
           .PutTasks(detail_id, code)
-          .then((response) => {
+          .then(() => {
             fetchData();
             setIsEdit(!isEdit);
             MyToast.fire({
