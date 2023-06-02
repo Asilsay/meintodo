@@ -1,24 +1,20 @@
 import withReactContent from 'sweetalert2-react-content';
 import { useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 
 import { Layout, Section } from '../components/Layout';
 
 import Spinner from '../components/Loading';
 import api from '../utils/api';
 import swal from '../utils/swal';
+import { Input, TextArea } from '../components/Input';
+import { TodosType } from '../utils/todotypes';
+
+const LazyCard = lazy(() => import('../components/Card'));
 
 const Home = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [handleTime, setHandleTime] = useState<string>('');
-  const [datasNowPlay, setDatasNowPlay] = useState<[]>([]);
-  const [datasUpc, setDatasUpc] = useState<[]>([]);
-  const [datasTopRate, setDatasTopRate] = useState<any>({
-    title: '',
-    overview: '',
-    poster_path: '',
-    id: 0,
-  });
+  const [datasTodo, setDatasTodo] = useState<TodosType[]>([]);
 
   const navigate = useNavigate();
   const MySwal = withReactContent(swal);
@@ -28,8 +24,9 @@ const Home = () => {
     await api
       .getTask()
       .then((response) => {
-        const { results } = response.data;
-        console.log(response);
+        const { data } = response;
+        setDatasTodo(data);
+        console.log(data);
       })
       .catch((error) => {
         MySwal.fire({
@@ -67,9 +64,32 @@ const Home = () => {
         id="greeting-section"
       >
         <div className="w-full min-h-screen flex flex-col gap-7 items-center md:flex-row">
-          <div className="w-1/2 rounded-2xl outline outline-1 outline-base-300 p-6">
-            s
-          </div>
+          <form className="w-1/2 rounded-2xl outline outline-1 outline-base-300 p-6 flex flex-col gap-4 ">
+            <Input
+              key="input"
+              id="task-name"
+              type="text"
+              name="Task name:"
+              placeholder="type your task name here"
+            />
+
+            <TextArea
+              key="text-input"
+              id="description"
+              name="Description:"
+              placeholder="type your description here"
+            />
+
+            <div className="flex justify-end">
+              <button
+                id="nav-todo-list"
+                className="btn btn-secondary"
+                onClick={(e) => e.preventDefault()}
+              >
+                Check Todo
+              </button>
+            </div>
+          </form>
           <div className="w-1/2">
             <h1 className="text-5xl font-bold">Write Your Todo List</h1>
             <p className="py-6">
@@ -96,6 +116,25 @@ const Home = () => {
           <p className="text-3xl mb-6 tracking-wider uppercase font-semibold ">
             Your Todo List
           </p>
+          <div className="w-full p-4">
+            <Suspense
+              fallback={
+                <span className="loading loading-spinner loading-lg"></span>
+              }
+            >
+              <div className="grid  grid-cols-1 gap-5">
+                {datasTodo.map((data, idx) => {
+                  return (
+                    <LazyCard
+                      key={`${idx}-todo`}
+                      content={data.content}
+                      status={data.labels}
+                    />
+                  );
+                })}
+              </div>
+            </Suspense>
+          </div>
         </div>
       </Section>
     </Layout>

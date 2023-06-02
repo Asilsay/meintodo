@@ -40,7 +40,7 @@ const Navbar: FC = () => {
             to={'/'}
             className={({ isActive }) =>
               isActive
-                ? 'active text-primary-content  tracking-wide btn btn-ghost p-2'
+                ? ' btn btn-ghost p-2 font-bold tracking-wide'
                 : 'btn btn-ghost p-2'
             }
           >
