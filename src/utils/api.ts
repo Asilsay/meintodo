@@ -54,4 +54,30 @@ export default {
         }`,
       },
     }),
+  PutTaskComplete: (code?: string, isCompleted?: string) =>
+    instance({
+      method: 'POST',
+      url: `tasks/${code}`,
+      data: { labels: [`${isCompleted}`] },
+      headers: {
+        Authorization: `Bearer ${
+          import.meta.env.VITE_TODO_API
+            ? import.meta.env.VITE_TODO_API
+            : process.env.VITE_TODO_API
+        }`,
+      },
+    }),
+  PutTasks: (code?: string, obj?: object) =>
+    instance({
+      method: 'POST',
+      url: `tasks/${code}`,
+      data: obj,
+      headers: {
+        Authorization: `Bearer ${
+          import.meta.env.VITE_TODO_API
+            ? import.meta.env.VITE_TODO_API
+            : process.env.VITE_TODO_API
+        }`,
+      },
+    }),
 };
