@@ -5,12 +5,12 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     fontFamily: {
-      sans: ['poppins', 'inter'],
+      sans: ['inter', 'poppins'],
     },
     extend: {},
   },
   plugins: [require('daisyui')],
   daisyui: {
-    themes: ['bumblebee', 'luxury'],
+    themes: ['winter', 'night'],
   },
 };
