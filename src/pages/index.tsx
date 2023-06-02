@@ -9,8 +9,17 @@ import api from '../utils/api';
 import swal from '../utils/swal';
 import { Input, TextArea } from '../components/Input';
 import { TodosType } from '../utils/todotypes';
+import { z, ZodType } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 const LazyCard = lazy(() => import('../components/Card'));
+
+type formInput = {
+  content: string;
+  description: string;
+  labels?: Array<string>;
+};
 
 const Home = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -19,7 +28,42 @@ const Home = () => {
   const navigate = useNavigate();
   const MySwal = withReactContent(swal);
 
-  const fetchNowPlay = async () => {
+  const schema: ZodType<formInput> = z.object({
+    content: z.string().min(3).max(30),
+    description: z.string().min(5).max(60),
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<formInput>({
+    resolver: zodResolver(schema),
+  });
+
+  const submitDataTodo = (data: formInput) => {
+    data.labels = ['notcompleted'];
+    postDatas(data);
+  };
+
+  const postDatas = async (code: any) => {
+    await api
+      .PostTask(code)
+      .then((response) => {
+        const { data } = response;
+        console.log(data);
+      })
+      .catch((error) => {
+        MySwal.fire({
+          icon: 'error',
+          title: 'Failed',
+          text: `error :  ${error.message}`,
+          showCancelButton: false,
+        });
+      });
+  };
+
+  const fetchDatas = async () => {
     await api
       .getTask()
       .then((response) => {
@@ -53,7 +97,7 @@ const Home = () => {
   };
 
   useEffect(() => {
-    fetchNowPlay();
+    fetchDatas();
   }, []);
 
   return (
@@ -63,29 +107,46 @@ const Home = () => {
         id="greeting-section"
       >
         <div className="w-full min-h-screen flex flex-col gap-7 items-center md:flex-row">
-          <form className="w-1/2 rounded-2xl outline outline-1 outline-base-300 p-6 flex flex-col gap-4 ">
-            <Input
-              key="input"
+          <form
+            onSubmit={handleSubmit(submitDataTodo)}
+            className="w-1/2 rounded-2xl outline outline-1 outline-base-300 p-6 flex flex-col gap-4 "
+            id="post"
+          >
+            <label
+              htmlFor="task-name"
+              className="label label-text"
+            >
+              task name
+            </label>
+            <input
               id="task-name"
               type="text"
-              name="Task name:"
               placeholder="type your task name here"
+              className="input input-bordered input-secondary w-full"
+              {...register('content')}
             />
 
-            <TextArea
-              key="text-input"
+            <label
+              className="label label-text"
+              htmlFor="description"
+            >
+              Description:
+            </label>
+            <textarea
               id="description"
-              name="Description:"
               placeholder="type your description here"
+              className="textarea textarea-secondary w-full  h-40"
+              {...register('description')}
             />
 
             <div className="flex justify-end">
               <button
                 id="nav-todo-list"
+                form="post"
                 className="btn btn-secondary"
-                onClick={(e) => e.preventDefault()}
+                type="submit"
               >
-                Check Todo
+                Submit Todo
               </button>
             </div>
           </form>
