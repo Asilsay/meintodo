@@ -4,7 +4,7 @@ import logosbl from '/meintodo_bl.png';
 import { ThemeContext } from '../context/theme';
 
 const Footer: FC = () => {
-  const { theme, setTheme } = useContext(ThemeContext);
+  const { theme } = useContext(ThemeContext);
 
   return (
     <footer className="footer footer-center p-10 bg-primary text-primary-content">
