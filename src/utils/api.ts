@@ -41,7 +41,7 @@ export default {
         }`,
       },
     }),
-  PostTask: (code: any) =>
+  PostTask: (code?: object) =>
     instance({
       method: 'POST',
       url: 'tasks/',

@@ -21,10 +21,14 @@ const LazyCard: FC<Props> = (props) => {
         className="h-16 w-full  p-4 items-center justify-between file:placeholder: bg-base-300 rounded-box shadow-md tooltip flex flex-row"
         data-tip="click to detail"
       >
-        <p className="text-lg tracking-wide font-semibold text-base-content uppercase">
+        <p
+          className={`${
+            label === 'notcompleted' ? '' : 'line-through'
+          } text-lg tracking-wide font-semibold text-base-content uppercase`}
+        >
           {content}
         </p>
-        <p className="text-lg tracking-wide font-semibold text-base-content uppercase">
+        <p className="text-base tracking-wide  text-base-content uppercase">
           {label}
         </p>
       </div>

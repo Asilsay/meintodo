@@ -7,6 +7,7 @@ import { Layout, Section } from '../components/Layout';
 import Spinner from '../components/Loading';
 import api from '../utils/api';
 import swal from '../utils/swal';
+import Toast from '../utils/toast';
 import { Input, TextArea } from '../components/Input';
 import { TodosType } from '../utils/todotypes';
 import { z, ZodType } from 'zod';
@@ -22,21 +23,26 @@ type formInput = {
 };
 
 const Home = () => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [datasTodo, setDatasTodo] = useState<TodosType[]>([]);
 
   const navigate = useNavigate();
   const MySwal = withReactContent(swal);
+  const MyToast = withReactContent(Toast);
 
   const schema: ZodType<formInput> = z.object({
-    content: z.string().min(3).max(30),
-    description: z.string().min(5).max(60),
+    content: z.string().min(3, 'Title is required').max(30),
+    description: z
+      .string()
+      .min(1, 'Description is required')
+      .min(10, 'Description must have more than 10 character')
+      .max(100),
   });
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
+    reset,
   } = useForm<formInput>({
     resolver: zodResolver(schema),
   });
@@ -44,6 +50,7 @@ const Home = () => {
   const submitDataTodo = (data: formInput) => {
     data.labels = ['notcompleted'];
     postDatas(data);
+    reset();
   };
 
   const postDatas = async (code: any) => {
@@ -51,7 +58,11 @@ const Home = () => {
       .PostTask(code)
       .then((response) => {
         const { data } = response;
-        console.log(data);
+        MyToast.fire({
+          icon: 'success',
+          title: 'success submit todo',
+        });
+        fetchDatas();
       })
       .catch((error) => {
         MySwal.fire({
@@ -69,7 +80,6 @@ const Home = () => {
       .then((response) => {
         const { data } = response;
         setDatasTodo(data);
-        console.log(data);
       })
       .catch((error) => {
         MySwal.fire({
@@ -109,42 +119,56 @@ const Home = () => {
         <div className="w-full min-h-screen flex flex-col gap-7 items-center md:flex-row">
           <form
             onSubmit={handleSubmit(submitDataTodo)}
-            className="w-1/2 rounded-2xl outline outline-1 outline-base-300 p-6 flex flex-col gap-4 "
+            className="w-1/2 rounded-2xl outline outline-1 outline-base-300 p-6 flex flex-col gap-2 "
             id="post"
           >
-            <label
-              htmlFor="task-name"
-              className="label label-text"
-            >
-              task name
-            </label>
-            <input
-              id="task-name"
-              type="text"
-              placeholder="type your task name here"
-              className="input input-bordered input-secondary w-full"
-              {...register('content')}
-            />
+            <div className="h-28">
+              <label
+                htmlFor="task-name"
+                className="label label-text"
+              >
+                task name
+              </label>
+              <input
+                id="task-name"
+                type="text"
+                placeholder="type your task name here"
+                className="input input-bordered input-secondary w-full mb-2"
+                {...register('content')}
+              />
+              {errors.content && (
+                <span className="text-error-content">
+                  {errors.content?.message}
+                </span>
+              )}
+            </div>
 
-            <label
-              className="label label-text"
-              htmlFor="description"
-            >
-              Description:
-            </label>
-            <textarea
-              id="description"
-              placeholder="type your description here"
-              className="textarea textarea-secondary w-full  h-40"
-              {...register('description')}
-            />
-
+            <div className="h-56">
+              <label
+                className="label label-text"
+                htmlFor="description"
+              >
+                Description:
+              </label>
+              <textarea
+                id="description"
+                placeholder="type your description here"
+                className="textarea textarea-secondary w-full h-40"
+                {...register('description')}
+              />
+              {errors.description && (
+                <span className="text-error-content">
+                  {errors.description?.message}
+                </span>
+              )}
+            </div>
             <div className="flex justify-end">
               <button
                 id="nav-todo-list"
                 form="post"
                 className="btn btn-secondary"
                 type="submit"
+                disabled={isSubmitting}
               >
                 Submit Todo
               </button>
@@ -179,7 +203,9 @@ const Home = () => {
           <div className="w-full p-4">
             <Suspense
               fallback={
-                <span className="loading loading-spinner loading-lg"></span>
+                <span className="loading loading-spinner loading-lg">
+                  loading...
+                </span>
               }
             >
               <div className="grid  grid-cols-1 gap-5">
