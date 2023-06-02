@@ -4,11 +4,9 @@ import { useState, useEffect, lazy, Suspense } from 'react';
 
 import { Layout, Section } from '../components/Layout';
 
-import Spinner from '../components/Loading';
 import api from '../utils/api';
 import swal from '../utils/swal';
 import Toast from '../utils/toast';
-import { Input, TextArea } from '../components/Input';
 import { TodosType } from '../utils/todotypes';
 import { z, ZodType } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -203,9 +201,7 @@ const Home = () => {
           <div className="w-full p-4">
             <Suspense
               fallback={
-                <span className="loading loading-spinner loading-lg">
-                  loading...
-                </span>
+                <span className="loading loading-spinner loading-lg"></span>
               }
             >
               <div className="grid  grid-cols-1 gap-5">
