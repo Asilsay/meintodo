@@ -41,4 +41,17 @@ export default {
         }`,
       },
     }),
+  PostTask: (code?: object) =>
+    instance({
+      method: 'POST',
+      url: 'tasks/',
+      data: code,
+      headers: {
+        Authorization: `Bearer ${
+          import.meta.env.VITE_TODO_API
+            ? import.meta.env.VITE_TODO_API
+            : process.env.VITE_TODO_API
+        }`,
+      },
+    }),
 };

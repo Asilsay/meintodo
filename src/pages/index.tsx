@@ -7,25 +7,79 @@ import { Layout, Section } from '../components/Layout';
 import Spinner from '../components/Loading';
 import api from '../utils/api';
 import swal from '../utils/swal';
+import Toast from '../utils/toast';
 import { Input, TextArea } from '../components/Input';
 import { TodosType } from '../utils/todotypes';
+import { z, ZodType } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 const LazyCard = lazy(() => import('../components/Card'));
 
+type formInput = {
+  content: string;
+  description: string;
+  labels?: Array<string>;
+};
+
 const Home = () => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [datasTodo, setDatasTodo] = useState<TodosType[]>([]);
 
   const navigate = useNavigate();
   const MySwal = withReactContent(swal);
+  const MyToast = withReactContent(Toast);
 
-  const fetchNowPlay = async () => {
+  const schema: ZodType<formInput> = z.object({
+    content: z.string().min(3, 'Title is required').max(30),
+    description: z
+      .string()
+      .min(1, 'Description is required')
+      .min(10, 'Description must have more than 10 character')
+      .max(100),
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<formInput>({
+    resolver: zodResolver(schema),
+  });
+
+  const submitDataTodo = (data: formInput) => {
+    data.labels = ['notcompleted'];
+    postDatas(data);
+    reset();
+  };
+
+  const postDatas = async (code: any) => {
+    await api
+      .PostTask(code)
+      .then((response) => {
+        const { data } = response;
+        MyToast.fire({
+          icon: 'success',
+          title: 'success submit todo',
+        });
+        fetchDatas();
+      })
+      .catch((error) => {
+        MySwal.fire({
+          icon: 'error',
+          title: 'Failed',
+          text: `error :  ${error.message}`,
+          showCancelButton: false,
+        });
+      });
+  };
+
+  const fetchDatas = async () => {
     await api
       .getTask()
       .then((response) => {
         const { data } = response;
         setDatasTodo(data);
-        console.log(data);
       })
       .catch((error) => {
         MySwal.fire({
@@ -53,7 +107,7 @@ const Home = () => {
   };
 
   useEffect(() => {
-    fetchNowPlay();
+    fetchDatas();
   }, []);
 
   return (
@@ -63,29 +117,60 @@ const Home = () => {
         id="greeting-section"
       >
         <div className="w-full min-h-screen flex flex-col gap-7 items-center md:flex-row">
-          <form className="w-1/2 rounded-2xl outline outline-1 outline-base-300 p-6 flex flex-col gap-4 ">
-            <Input
-              key="input"
-              id="task-name"
-              type="text"
-              name="Task name:"
-              placeholder="type your task name here"
-            />
+          <form
+            onSubmit={handleSubmit(submitDataTodo)}
+            className="w-1/2 rounded-2xl outline outline-1 outline-base-300 p-6 flex flex-col gap-2 "
+            id="post"
+          >
+            <div className="h-28">
+              <label
+                htmlFor="task-name"
+                className="label label-text"
+              >
+                task name
+              </label>
+              <input
+                id="task-name"
+                type="text"
+                placeholder="type your task name here"
+                className="input input-bordered input-secondary w-full mb-2"
+                {...register('content')}
+              />
+              {errors.content && (
+                <span className="text-error-content">
+                  {errors.content?.message}
+                </span>
+              )}
+            </div>
 
-            <TextArea
-              key="text-input"
-              id="description"
-              name="Description:"
-              placeholder="type your description here"
-            />
-
+            <div className="h-56">
+              <label
+                className="label label-text"
+                htmlFor="description"
+              >
+                Description:
+              </label>
+              <textarea
+                id="description"
+                placeholder="type your description here"
+                className="textarea textarea-secondary w-full h-40"
+                {...register('description')}
+              />
+              {errors.description && (
+                <span className="text-error-content">
+                  {errors.description?.message}
+                </span>
+              )}
+            </div>
             <div className="flex justify-end">
               <button
                 id="nav-todo-list"
+                form="post"
                 className="btn btn-secondary"
-                onClick={(e) => e.preventDefault()}
+                type="submit"
+                disabled={isSubmitting}
               >
-                Check Todo
+                Submit Todo
               </button>
             </div>
           </form>
@@ -118,7 +203,9 @@ const Home = () => {
           <div className="w-full p-4">
             <Suspense
               fallback={
-                <span className="loading loading-spinner loading-lg"></span>
+                <span className="loading loading-spinner loading-lg">
+                  loading...
+                </span>
               }
             >
               <div className="grid  grid-cols-1 gap-5">

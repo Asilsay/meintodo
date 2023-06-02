@@ -1,14 +1,14 @@
 import { FC, InputHTMLAttributes, TextareaHTMLAttributes } from 'react';
 
 export const Input: FC<InputHTMLAttributes<HTMLInputElement>> = (props) => {
-  const { placeholder, id, type, name } = props;
+  const { placeholder, id, type, content } = props;
   return (
     <div>
       <label
         className="label label-text"
         htmlFor={id}
       >
-        {name}
+        {content}
       </label>
       <input
         id={id}
@@ -24,14 +24,14 @@ export const Input: FC<InputHTMLAttributes<HTMLInputElement>> = (props) => {
 export const TextArea: FC<TextareaHTMLAttributes<HTMLTextAreaElement>> = (
   props
 ) => {
-  const { placeholder, id, name } = props;
+  const { placeholder, id, content } = props;
   return (
     <div>
       <label
         className="label label-text"
         htmlFor={id}
       >
-        {name}
+        {content}
       </label>
 
       <textarea
